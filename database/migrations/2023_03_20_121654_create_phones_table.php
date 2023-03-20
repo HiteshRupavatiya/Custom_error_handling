@@ -15,7 +15,11 @@ return new class extends Migration
     {
         Schema::create('phones', function (Blueprint $table) {
             $table->id();
+            $table->string('phone_type')->nullable(false);
+            $table->bigInteger('phone_number')->unique()->nullable(false);
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
