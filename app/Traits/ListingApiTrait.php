@@ -11,8 +11,8 @@ trait ListingApiTrait
     public function ListingValidation()
     {
         $this->validate(request(), [
-            'Page'          => 'integer',
-            'PerPage'       => 'integer',
+            'Page'          => 'nullable|integer',
+            'PerPage'       => 'nullable|integer',
             'is_active'     => 'boolean',
             'search'        => 'nullable',
             'only_trashed'  => 'integer'
@@ -50,9 +50,9 @@ trait ListingApiTrait
 
         /* Pagination */
         $count          = $query->count();
-        if (request()->page && request()->perPage) {
-            $page       = request()->page;
-            $perPage    = request()->perPage;
+        if (request()->Page && request()->PerPage) {
+            $page       = request()->Page;
+            $perPage    = request()->PerPage;
             $query      = $query->skip($perPage * ($page - 1))->take($perPage);
         }
 
