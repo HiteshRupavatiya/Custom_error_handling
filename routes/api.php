@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\auth\AuthController;
+use App\Http\Controllers\PhoneController;
 use App\Http\Controllers\UserController;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -28,4 +29,15 @@ Route::controller(AuthController::class)->prefix('user')->group(function () {
 
 Route::controller(UserController::class)->prefix('user')->group(function () {
     Route::post('list', 'list');
-})->middleware(['auth:sanctum']);
+    Route::get('get/{id}', 'get');
+    Route::put('update/{id}', 'update');
+    Route::delete('delete/{id}', 'delete');
+});
+
+Route::controller(PhoneController::class)->prefix('phone')->group(function () {
+    Route::post('list', 'list');
+    Route::post('create', 'create');
+    Route::get('get/{id}', 'get');
+    Route::put('update/{id}', 'update');
+    Route::delete('delete/{id}', 'delete');
+});
