@@ -13,10 +13,9 @@ class UserController extends Controller
 
     public function list(Request $request)
     {
-        $users = User::get();
+        $user = User::query()->get();
         $this->ListingValidation();
         $searchableFields = ['name', 'email'];
-        $data = $this->filterSearchPagination($users, $searchableFields);
-        return ok('Users Fetched Successfully', $data);
+        return ok('Users Fetched Successfully', $this->filterSearchPagination($user, $searchableFields));
     }
 }
