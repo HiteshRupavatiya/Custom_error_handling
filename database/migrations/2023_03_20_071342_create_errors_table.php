@@ -14,7 +14,13 @@ return new class extends Migration
     public function up()
     {
         Schema::create('errors', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->string('code')->nullable();
+            $table->string('file')->nullable();
+            $table->string('line')->nullable();
+            $table->text('message')->nullable();
+            $table->text('trace')->nullable();
             $table->timestamps();
         });
     }
