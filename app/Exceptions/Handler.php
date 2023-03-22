@@ -52,7 +52,7 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $exception) {
             // if (!app()->environment('local')) {
-            $user_id = 2;
+            $user_id = 1;
 
             if (Auth::user()) {
                 $user_id = Auth::user()->id;
@@ -68,8 +68,8 @@ class Handler extends ExceptionHandler
             );
 
             // dd($data);
-
-            Error::create($data);
+            
+            // Error::create($data);
             // }
         });
     }
