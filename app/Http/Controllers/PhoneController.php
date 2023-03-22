@@ -19,8 +19,8 @@ class PhoneController extends Controller
         $data = $this->filterSearchPagination($phone, $searchableFields);
 
         return ok('Phones Fetched Successfully', [
-            'users' => $data['query']->with('user')->get(),
-            'count' => $data['count']
+            'phones' => $data['query']->with('user')->get(),
+            'count'  => $data['count']
         ]);
     }
 
