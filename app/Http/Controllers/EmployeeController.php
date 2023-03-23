@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use App\Traits\ListingApiTrait;
+use App\Exports\EmployeesExport;
+use App\Imports\EmployeesImport;
+use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeController extends Controller
 {
@@ -20,7 +24,7 @@ class EmployeeController extends Controller
         $data = $this->filterSearchPagination($employee, $searchableFields);
 
         return ok('Employees Fetched Successfully', [
-            'employees' => $data['query']->with('tasks')->get(),
+            'employees' => $data['query']->with('tasks')->where('user_id', Auth::user()->id)->get(),
             'count'     => $data['count']
         ]);
     }
@@ -54,7 +58,7 @@ class EmployeeController extends Controller
 
     public function get($id)
     {
-        $employee = Employee::find($id);
+        $employee = Employee::where('user_id', Auth::user()->id)->find($id);
         if ($employee) {
             return ok('Employee Fetched Successfully', $employee);
         }
@@ -71,7 +75,7 @@ class EmployeeController extends Controller
             'joining_date' => 'required|date|date_format:Y-m-d|before_or_equal:' . now(),
         ]);
 
-        $employee = Employee::find($id);
+        $employee = Employee::where('user_id', Auth::user()->id)->find($id);
 
         if ($employee) {
             $employee->update($request->only(
@@ -91,7 +95,7 @@ class EmployeeController extends Controller
 
     public function delete($id)
     {
-        $employee = Employee::find($id);
+        $employee = Employee::where('user_id', Auth::user()->id)->find($id);
         if ($employee) {
             $employee->delete();
             return ok('Employee Deleted Successfully');
@@ -101,11 +105,32 @@ class EmployeeController extends Controller
 
     public function forceDelete($id)
     {
-        $employee = Employee::onlyTrashed()->find($id);
+        $employee = Employee::onlyTrashed()->where('user_id', Auth::user()->id)->find($id);
         if ($employee) {
             $employee->forceDelete();
             return ok('Employee Forced Deleted Successfully');
         }
         return error('Employee Not Found');
+    }
+
+    public function export(Request $request)
+    {
+        $request->validate([
+            'start_date' => 'required|date|date_format:Y-m-d|before:' . now(),
+            'end_date'   => 'required|date|date_format:Y-m-d|before_or_equal:' . now(),
+        ]);
+
+        return Excel::download(new EmployeesExport($request->start_date, $request->end_date), 'employee_data.csv');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:csv'
+        ]);
+
+        Excel::import(new EmployeesImport, $request->file('file')->store('temp'));
+
+        return ok('Employee Imported Successfully');
     }
 }

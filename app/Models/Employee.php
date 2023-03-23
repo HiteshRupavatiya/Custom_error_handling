@@ -20,19 +20,13 @@ class Employee extends Model
         'company_id'
     ];
 
-    protected $hidden = [
-        'created_at',
-        'updated_at',
-        'deleted_at'
-    ];
-
     public function tasks()
     {
-        return $this->hasMany(Task::class, 'employee_id', 'id')->with('tasks');
+        return $this->hasMany(Task::class, 'employee_id', 'id');
     }
 
     public function company()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo(Company::class, 'company_id')->with('tasks');
     }
 }

@@ -22,4 +22,14 @@ class Job extends Model
         'updated_at',
         'deleted_at'
     ];
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function candidates()
+    {
+        return $this->hasMany(Candidate::class);
+    }
 }

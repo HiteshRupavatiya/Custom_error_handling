@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use App\Traits\ListingApiTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CompanyController extends Controller
 {
@@ -20,7 +21,7 @@ class CompanyController extends Controller
         $data = $this->filterSearchPagination($company, $searchableFields);
 
         return ok('Companies Fetched Successfully', [
-            'companies' => $data['query']->with('employees', 'jobs', 'tasks')->get(),
+            'companies' => $data['query']->where('user_id', Auth::user()->id)->with('employees', 'jobs')->get(),
             'count'     => $data['count']
         ]);
     }
@@ -37,6 +38,8 @@ class CompanyController extends Controller
         $file = $request->file('logo');
         $fileName = time() . $file->getClientOriginalName();
 
+        $user_id = Auth::user()->id;
+
         $company = Company::create(
             $request->only(
                 [
@@ -46,7 +49,8 @@ class CompanyController extends Controller
                 ]
             )   +
                 [
-                    'logo' => $fileName
+                    'logo'    => $fileName,
+                    'user_id' => $user_id
                 ]
         );
 
@@ -58,7 +62,7 @@ class CompanyController extends Controller
 
     public function get($id)
     {
-        $company = Company::find($id);
+        $company = Company::where('user_id', Auth::user()->id)->find($id);
         if ($company) {
             return ok('Company Fetched Successfully', $company);
         }
@@ -74,7 +78,7 @@ class CompanyController extends Controller
             'website'      => 'required|url|unique:companies,website'
         ]);
 
-        $company = Company::find($id);
+        $company = Company::where('user_id', Auth::user()->id)->find($id);
 
         $file = $request->file('logo');
 
@@ -107,7 +111,7 @@ class CompanyController extends Controller
 
     public function delete($id)
     {
-        $company = Company::find($id);
+        $company = Company::where('user_id', Auth::user()->id)->find($id);
         if ($company) {
             $company->delete();
             return ok('Company Deleted Successfully');
@@ -117,7 +121,7 @@ class CompanyController extends Controller
 
     public function forceDelete($id)
     {
-        $company = Company::onlyTrashed()->find($id);
+        $company = Company::onlyTrashed()->where('user_id', Auth::user()->id)->find($id);
         if ($company) {
             if ($company->logo) {
                 unlink(public_path('storage/') . $company->logo);

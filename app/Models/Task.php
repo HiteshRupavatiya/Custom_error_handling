@@ -22,4 +22,9 @@ class Task extends Model
         'updated_at',
         'deleted_at'
     ];
+
+    public function tasks()
+    {
+        return $this->belongsTo(Employee::class);
+    }
 }

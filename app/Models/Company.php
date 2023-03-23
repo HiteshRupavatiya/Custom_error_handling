@@ -15,7 +15,8 @@ class Company extends Model
         'company_name',
         'email',
         'logo',
-        'website'
+        'website',
+        'user_id'
     ];
 
     protected $hidden = [
@@ -24,14 +25,24 @@ class Company extends Model
         'deleted_at'
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function employees()
     {
-        return $this->hasMany(Employee::class, 'company_id', 'id');
+        return $this->hasMany(Employee::class, 'company_id', 'id')->with('tasks');
     }
 
     public function jobs()
     {
-        return $this->hasMany(Job::class, 'company_id', 'id');
+        return $this->hasMany(Job::class, 'company_id', 'id')->with('candidates');
+    }
+
+    public function candidates()
+    {
+        return $this->hasOneThrough(Candidate::class, Job::class);
     }
 
     public function tasks()

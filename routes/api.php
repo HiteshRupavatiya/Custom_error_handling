@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\JobController;
@@ -45,38 +46,48 @@ Route::controller(PhoneController::class)->prefix('phone')->middleware('auth:api
     Route::delete('delete/{id}', 'delete');
 });
 
-Route::controller(CompanyController::class)->prefix('company')->group(function () {
-    Route::post('list', 'list');
-    Route::post('create', 'create');
-    Route::get('get/{id}', 'get');
-    Route::post('update/{id}', 'update');
-    Route::delete('delete/{id}', 'delete');
-    Route::delete('force-delete/{id}', 'forceDelete');
-});
+Route::group(['middleware' => ['auth:api', 'is_admin']], function () {
+    Route::controller(CompanyController::class)->prefix('company')->group(function () {
+        Route::post('list', 'list');
+        Route::post('create', 'create');
+        Route::get('get/{id}', 'get');
+        Route::post('update/{id}', 'update');
+        Route::delete('delete/{id}', 'delete');
+        Route::delete('force-delete/{id}', 'forceDelete');
+    });
 
-Route::controller(EmployeeController::class)->prefix('employee')->group(function () {
-    Route::post('list', 'list');
-    Route::post('create', 'create');
-    Route::get('get/{id}', 'get');
-    Route::put('update/{id}', 'update');
-    Route::delete('delete/{id}', 'delete');
-    Route::delete('force-delete/{id}', 'forceDelete');
-});
+    Route::controller(EmployeeController::class)->prefix('employee')->group(function () {
+        Route::post('list', 'list');
+        Route::post('create', 'create');
+        Route::get('get/{id}', 'get');
+        Route::put('update/{id}', 'update');
+        Route::delete('delete/{id}', 'delete');
+        Route::delete('force-delete/{id}', 'forceDelete');
+        Route::post('export', 'export');
+        Route::post('import', 'import');
+    });
 
-Route::controller(TaskController::class)->prefix('task')->group(function () {
-    Route::post('list', 'list');
-    Route::post('create', 'create');
-    Route::get('get/{id}', 'get');
-    Route::put('update/{id}', 'update');
-    Route::delete('delete/{id}', 'delete');
-    Route::delete('force-delete/{id}', 'forceDelete');
-});
+    Route::controller(TaskController::class)->prefix('task')->group(function () {
+        Route::post('list', 'list');
+        Route::post('create', 'create');
+        Route::get('get/{id}', 'get');
+        Route::put('update/{id}', 'update');
+        Route::delete('delete/{id}', 'delete');
+        Route::delete('force-delete/{id}', 'forceDelete');
+    });
 
-Route::controller(JobController::class)->prefix('job')->group(function () {
-    Route::post('list', 'list');
-    Route::post('create', 'create');
-    Route::get('get/{id}', 'get');
-    Route::put('update/{id}', 'update');
-    Route::delete('delete/{id}', 'delete');
-    Route::delete('force-delete/{id}', 'forceDelete');
+    Route::controller(JobController::class)->prefix('job')->group(function () {
+        Route::post('list', 'list');
+        Route::post('create', 'create');
+        Route::get('get/{id}', 'get');
+        Route::put('update/{id}', 'update');
+        Route::delete('delete/{id}', 'delete');
+        Route::delete('force-delete/{id}', 'forceDelete');
+    });
+
+    Route::controller(CandidateController::class)->prefix('candidate')->group(function () {
+        Route::post('list', 'list');
+        Route::post('create', 'create')->withoutMiddleware(['auth:api', 'is_admin']);
+        Route::get('get/{id}', 'get');
+    });
 });

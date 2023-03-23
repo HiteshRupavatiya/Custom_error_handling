@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->bigInteger('phone')->unique();
             $table->string('resume');
+            $table->foreignId('job_id')->constrained('jobs')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

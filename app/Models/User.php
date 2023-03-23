@@ -50,4 +50,14 @@ class User extends Authenticatable
     {
         return $this->hasOne(Phone::class);
     }
+
+    public function companies()
+    {
+        return $this->hasMany(Company::class);
+    }
+
+    public function employees()
+    {
+        return $this->hasMany(Employee::class);
+    }
 }
