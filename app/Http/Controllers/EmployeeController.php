@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Traits\ListingApiTrait;
 use App\Exports\EmployeesExport;
 use App\Imports\EmployeesImport;
+use App\Models\Company;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -40,20 +41,24 @@ class EmployeeController extends Controller
             'company_id'   => 'required|exists:companies,id'
         ]);
 
-        $employee = Employee::create(
-            $request->only(
-                [
-                    'first_name',
-                    'last_name',
-                    'email',
-                    'phone',
-                    'joining_date',
-                    'company_id'
-                ]
-            )
-        );
+        $company = Company::where('id', $request->company_id)->get();
 
-        return ok('Employee Created Successfully', $employee);
+        if (Auth::user()->id == $company->user_id) {
+            $employee = Employee::create(
+                $request->only(
+                    [
+                        'first_name',
+                        'last_name',
+                        'email',
+                        'phone',
+                        'joining_date',
+                        'company_id'
+                    ]
+                )
+            );
+            return ok('Employee Created Successfully', $employee);
+        }
+        return error('Invalid Company Employee Details');
     }
 
     public function get($id)

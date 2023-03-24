@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Job;
 use Illuminate\Http\Request;
 use App\Traits\ListingApiTrait;
+use Illuminate\Support\Facades\Auth;
 
 class JobController extends Controller
 {
@@ -20,7 +22,7 @@ class JobController extends Controller
         $data = $this->filterSearchPagination($job, $searchableFields);
 
         return ok('Jobs Fetched Successfully', [
-            'jobs'  => $data['query']->get(),
+            'jobs'  => $data['query']->with('company', 'candidates')->get(),
             'count' => $data['count']
         ]);
     }
@@ -33,17 +35,21 @@ class JobController extends Controller
             'company_id' => 'required|exists:companies,id'
         ]);
 
-        $job = Job::create(
-            $request->only(
-                [
-                    'type',
-                    'vacancy',
-                    'company_id'
-                ]
-            )
-        );
+        $company = Company::where('id', $request->company_id)->get();
 
-        return ok('Job Created Successfully', $job);
+        if (Auth::user()->id == $company->user_id) {
+            $job = Job::create(
+                $request->only(
+                    [
+                        'type',
+                        'vacancy',
+                        'company_id'
+                    ]
+                )
+            );
+            return ok('Job Created Successfully', $job);
+        }
+        return error('Invalid Company Job Details');
     }
 
     public function get($id)
